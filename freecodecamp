@@ -1,0 +1,66 @@
+import pandas as pd
+
+# Load your dataset
+data = pd.DataFrame({
+    'age': [39, 50, 38, 53, 28],
+    'workclass': ['State-gov', 'Self-emp-not-inc', 'Private', 'Private', 'Private'],
+    'fnlwgt': [77516, 83311, 215646, 234721, 338409],
+    'education': ['Bachelors', 'Bachelors', 'HS-grad', '11th', 'Bachelors'],
+    'education-num': [13, 13, 9, 7, 13],
+    'marital-status': ['Never-married', 'Married-civ-spouse', 'Divorced', 'Married-civ-spouse', 'Married-civ-spouse'],
+    'occupation': ['Adm-clerical', 'Exec-managerial', 'Handlers-cleaners', 'Handlers-cleaners', 'Prof-specialty'],
+    'relationship': ['Not-in-family', 'Husband', 'Not-in-family', 'Husband', 'Wife'],
+    'race': ['White', 'White', 'White', 'Black', 'Black'],
+    'sex': ['Male', 'Male', 'Male', 'Male', 'Female'],
+    'capital-gain': [2174, 0, 0, 0, 0],
+    'capital-loss': [0, 0, 0, 0, 0],
+    'hours-per-week': [40, 13, 40, 40, 40],
+    'native-country': ['United-States', 'United-States', 'United-States', 'United-States', 'Cuba'],
+    'salary': ['<=50K', '<=50K', '<=50K', '<=50K', '<=50K']
+})
+
+# 1. Count of people of each race
+race_counts = data['race'].value_counts()
+
+# 2. Average age of men
+average_age_men = data[data['sex'] == 'Male']['age'].mean()
+
+# 3. Percentage of people with a Bachelor's degree
+bachelors_count = (data['education'] == 'Bachelors').sum()
+total_count = len(data)
+percentage_bachelors = (bachelors_count / total_count) * 100
+
+# 4. Percentage of advanced education earners making >50K
+advanced_education = ['Bachelors', 'Masters', 'Doctorate']
+high_salary_advanced = (data[(data['education'].isin(advanced_education)) & (data['salary'] == '>50K')].shape[0])
+percentage_high_salary_advanced = (high_salary_advanced / data[data['education'].isin(advanced_education)].shape[0]) * 100
+
+# 5. Percentage of non-advanced education earners making >50K
+non_advanced_high_salary = (data[~data['education'].isin(advanced_education) & (data['salary'] == '>50K')].shape[0])
+percentage_high_salary_non_advanced = (non_advanced_high_salary / data[~data['education'].isin(advanced_education)].shape[0]) * 100
+
+# 6. Minimum number of hours worked per week
+min_hours_per_week = data['hours-per-week'].min()
+
+# 7. Percentage of minimum hour workers earning >50K
+min_hour_high_salary = (data[data['hours-per-week'] == min_hours_per_week]['salary'] == '>50K').sum()
+percentage_min_hour_high_salary = (min_hour_high_salary / (data['hours-per-week'] == min_hours_per_week).sum()) * 100
+
+# 8. Country with highest percentage of >50K earners
+country_salary_counts = data.groupby('native-country')['salary'].value_counts(normalize=True).unstack(fill_value=0)
+highest_percentage_country = (country_salary_counts[">50K"] * 100).idxmax()
+highest_percentage_value = (country_salary_counts[">50K"] * 100).max()
+
+# 9. Most popular occupation for >50K earners in India
+popular_occupation_india = data[(data['native-country'] == 'India') & (data['salary'] == '>50K')]['occupation'].value_counts().idxmax()
+
+# Display results
+print("1. Race Counts:\n", race_counts)
+print("\n2. Average Age of Men:", average_age_men)
+print("\n3. Percentage of Bachelor's Degree Holders:", percentage_bachelors)
+print("\n4. Percentage of Advanced Education Earners Making >50K:", percentage_high_salary_advanced)
+print("\n5. Percentage of Non-Advanced Education Earners Making >50K:", percentage_high_salary_non_advanced)
+print("\n6. Minimum Hours Worked per Week:", min_hours_per_week)
+print("\n7. Percentage of Min Hour Workers Earning >50K:", percentage_min_hour_high_salary)
+print("\n8. Country with Highest Percentage of >50K Earners:", highest_percentage_country, "with", highest_percentage_value, "%")
+print("\n9. Most Popular Occupation for >50K Earners in India:", popular_occupation_india)
